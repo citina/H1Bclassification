@@ -1,0 +1,391 @@
+---
+title: "Final Project"
+author: "Citina Liang"
+date: "2018/7/26"
+output: html_document
+---
+
+```{r}
+divplot <- function(x){
+  plot(factor(tr.new[[x]]), factor(tr.new$CASE_STATUS), main = names(tr[,x]))
+}
+```
+
+```{r,warning=FALSE,message=FALSE}
+library(readr)
+tr <- read_csv("TrainH1BLast.csv")
+```
+
+```{r}
+tr$EMPLOYMENT_START_DATE <- as.Date(tr$EMPLOYMENT_START_DATE, format = "%m/%d/%Y")
+tr$EMPLOYMENT_END_DATE <- as.Date(tr$EMPLOYMENT_END_DATE, format = "%m/%d/%Y")
+tr$DECISION_DATE <- as.Date(tr$DECISION_DATE, format = "%m/%d/%Y")
+tr$CASE_SUBMITTED <- as.Date(tr$CASE_SUBMITTED, format = "%m/%d/%Y")
+```
+
+```{r}
+tr$pw_source_other<-ifelse(tr$PW_SOURCE_OTHER=="OFLC ONLINE DATA CENTER","OFLC ONLINE DATA CENTER", "OTHER")
+
+for(i in 1:4918){
+  if(is.na(tr$pw_source_other[i])){
+    tr$pw_source_other[i]<-"N/A"
+  }
+}
+```
+
+```{r}
+tr$PREVAILING_WAGE_year <- 1:4918
+for(i in 1:4918){
+  if(is.na(tr$PW_UNIT_OF_PAY[i])){
+    tr$PREVAILING_WAGE_year[i] <- NA
+  }
+  else if(tr$PW_UNIT_OF_PAY[i] == "Bi-Weekly"){
+    tr$PREVAILING_WAGE_year[i] <- tr$PREVAILING_WAGE[i] * 52.14 / 2
+  }
+  else if(tr$PW_UNIT_OF_PAY[i] == "Hour"){
+    tr$PREVAILING_WAGE_year[i] <- tr$PREVAILING_WAGE[i] * 52.14 * 8 * 5
+  }
+  else if(tr$PW_UNIT_OF_PAY[i] == "Month"){
+    tr$PREVAILING_WAGE_year[i] <- tr$PREVAILING_WAGE[i] * 12
+  }
+  else if(tr$PW_UNIT_OF_PAY[i] == "Week"){
+    tr$PREVAILING_WAGE_year[i] <- tr$PREVAILING_WAGE[i] * 52.14
+  }
+  else {
+    tr$PREVAILING_WAGE_year[i] <- tr$PREVAILING_WAGE[i]
+  }
+}
+```
+
+```{r}
+tr$WAGE_RATE_OF_PAY_FROM_YEAR <- 1:4918
+for(i in 1:4918){
+  if(is.na(tr$WAGE_UNIT_OF_PAY[i])){
+    tr$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- NA
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Bi-Weekly"){
+    tr$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- tr$WAGE_RATE_OF_PAY_FROM[i] * 52.14 / 2
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Hour"){
+    tr$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- tr$WAGE_RATE_OF_PAY_FROM[i] * 52.14 * 8 * 5
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Month"){
+    tr$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- tr$WAGE_RATE_OF_PAY_FROM[i] * 12
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Week"){
+    tr$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- tr$WAGE_RATE_OF_PAY_FROM[i] * 52.14
+  }
+  else {
+    tr$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- tr$WAGE_RATE_OF_PAY_FROM[i]
+  }
+}
+```
+
+```{r}
+tr$WAGE_RATE_OF_PAY_TO_YEAR <- 1:4918
+for(i in 1:4918){
+  if(is.na(tr$WAGE_UNIT_OF_PAY[i])){
+    tr$WAGE_RATE_OF_PAY_TO_YEAR[i] <- NA
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Bi-Weekly"){
+    tr$WAGE_RATE_OF_PAY_TO_YEAR[i] <- tr$WAGE_RATE_OF_PAY_TO[i] * 52.14 / 2
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Hour"){
+    tr$WAGE_RATE_OF_PAY_TO_YEAR[i] <- tr$WAGE_RATE_OF_PAY_TO[i] * 52.14 * 8 * 5
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Month"){
+    tr$WAGE_RATE_OF_PAY_TO_YEAR[i] <- tr$WAGE_RATE_OF_PAY_TO[i] * 12
+  }
+  else if(tr$WAGE_UNIT_OF_PAY[i] == "Week"){
+    tr$WAGE_RATE_OF_PAY_TO_YEAR[i] <- tr$WAGE_RATE_OF_PAY_TO[i] * 52.14
+  }
+  else {
+    tr$WAGE_RATE_OF_PAY_TO_YEAR[i] <- tr$WAGE_RATE_OF_PAY_TO[i]
+  }
+}
+```
+
+```{r}
+tr.new <- tr[,c("CASE_STATUS",
+                "VISA_CLASS",
+                "PREVAILING_WAGE_year",
+                "TOTAL_WORKERS",
+                "H1B_DEPENDENT",
+                "LABOR_CON_AGREE",
+                "NEW_EMPLOYMENT",
+                "CONTINUED_EMPLOYMENT",
+                "CHANGE_PREVIOUS_EMPLOYMENT",
+                "NEW_CONCURRENT_EMPLOYMENT",
+                "CHANGE_EMPLOYER",
+                "AMENDED_PETITION",
+                "FULL_TIME_POSITION",
+                "WAGE_RATE_OF_PAY_FROM_YEAR",
+                "pw_source_other",
+                "PW_SOURCE_YEAR",
+                "EMPLOYER_COUNTRY",
+                "EMPLOYER_PROVINCE",
+                "EMPLOYER_PHONE",
+                "AGENT_REPRESENTING_EMPLOYER",
+                "PW_WAGE_LEVEL",
+                "WILLFUL_VIOLATOR",
+                "ORIGINAL_CERT_DATE",
+                "PW_UNIT_OF_PAY",
+                "PW_SOURCE",
+                "SUPPORT_H1B")]
+
+```
+
+```{r}
+tr.new.sv <- tr.new
+```
+
+
+```{r}
+tr.new$p.time <- tr$DECISION_DATE-tr$CASE_SUBMITTED
+tr.new$p.time <- as.numeric(tr.new$p.time)
+```
+
+```{r}
+#tr.new$p.time2 <- tr$EMPLOYMENT_END_DATE - tr$DECISION_DATE
+#tr.new$p.time2 <- as.numeric(tr.new$p.time2)
+```
+
+```{r}
+tr.new$decision.day <- ifelse( weekdays(tr$DECISION_DATE)=="Saturday"|
+weekdays(tr$DECISION_DATE) == "Sunday", "Weekend", "Weekday")
+```
+
+```{r}
+for(i in 1:4918){
+  for(k in 2:28){
+    if(is.na(tr.new[i,k]))
+    {
+      if(k == 3 | k == 14){
+        tr.new[i,k] <- 0
+      }
+      else {
+        tr.new[i,k] <- "N/A"
+      }
+    }
+  }
+}
+```
+
+```{r}
+for(i in 1:4918){
+  if(tr.new$EMPLOYER_PROVINCE[i] != "N/A")
+    tr.new$EMPLOYER_PROVINCE[i] <- "not N/A"
+}
+
+for(i in 1:4918){
+  if(tr.new$EMPLOYER_PHONE[i] != "N/A")
+    tr.new$EMPLOYER_PHONE[i] <- "not N/A"
+}
+
+for(i in 1:4918){
+  if(tr.new$ORIGINAL_CERT_DATE[i] != "N/A")
+    tr.new$ORIGINAL_CERT_DATE[i] <- "not N/A"
+}
+```
+
+
+```{r}
+for(i in 1:28){
+  plot(factor(tr.new[[i]]), factor(tr.new$CASE_STATUS), main = names(tr.new[,i]))
+}
+```
+
+
+```{r}
+tr.new$CASE_STATUS <- as.factor(tr.new$CASE_STATUS)
+tr.new$VISA_CLASS <- as.factor(tr.new$VISA_CLASS)
+tr.new$LABOR_CON_AGREE <- as.factor(tr.new$LABOR_CON_AGREE)
+tr.new$FULL_TIME_POSITION <- as.factor(tr.new$FULL_TIME_POSITION)
+tr.new$pw_source_other <- as.factor(tr.new$pw_source_other)
+tr.new$PW_SOURCE_YEAR <- as.factor(tr.new$PW_SOURCE_YEAR)
+tr.new$EMPLOYER_COUNTRY <- as.factor(tr.new$EMPLOYER_COUNTRY)
+tr.new$EMPLOYER_PROVINCE <- as.factor(tr.new$EMPLOYER_PROVINCE)
+tr.new$EMPLOYER_PHONE <- as.factor(tr.new$EMPLOYER_PHONE)
+tr.new$AGENT_REPRESENTING_EMPLOYER <- as.factor(tr.new$AGENT_REPRESENTING_EMPLOYER)
+tr.new$PW_WAGE_LEVEL <- as.factor(tr.new$PW_WAGE_LEVEL)
+tr.new$WILLFUL_VIOLATOR <- as.factor(tr.new$WILLFUL_VIOLATOR)
+tr.new$ORIGINAL_CERT_DATE <- as.factor(tr.new$ORIGINAL_CERT_DATE)
+tr.new$PW_UNIT_OF_PAY <- as.factor(tr.new$PW_UNIT_OF_PAY)
+tr.new$PW_SOURCE <- as.factor(tr.new$PW_SOURCE)
+tr.new$SUPPORT_H1B <- as.factor(tr.new$SUPPORT_H1B)
+tr.new$decision.day <- as.factor(tr.new$decision.day)
+tr.new$H1B_DEPENDENT <- as.factor(tr.new$H1B_DEPENDENT)
+```
+
+```{r}
+tr.new$case_year <- as.factor(year(tr$CASE_SUBMITTED))
+```
+
+```{r}
+tr.new$WAGE_RATE_OF_PAY_TO_YEAR <- tr$WAGE_RATE_OF_PAY_TO_YEAR
+tr.new$WAGE_RATE_OF_PAY_TO_YEAR[which(is.na(tr.new$WAGE_RATE_OF_PAY_TO_YEAR))] <- 0
+```
+
+__Do NOT run this CHUNK__
+```{,message=FALSE}
+library(readr)
+state.info <- read_csv("C:/Users/David Wang/Desktop/2017_extra_data.csv")
+tr.new$state_pop <- rep(0,4918)
+tr.new$state_gdp <- rep(0,4918)
+tr.new$state_unemp <- rep(0,4918)
+
+for(i in 1:4918){
+  if(which(state.info[,1] == tr$EMPLOYER_STATE[i]))
+  tr.new$state_pop[i] <-state.info$Population[which(state.info[,1] == tr$EMPLOYER_STATE[i])]
+  tr.new$state_gdp[i] <-state.info$GDP[which(state.info[,1] == tr$EMPLOYER_STATE[i])]
+  tr.new$state_unemp[i] <-state.info$Unempoyment_rate[which(state.info[,1] == tr$EMPLOYER_STATE[i])]
+}
+```
+
+```{r}
+set.seed(12345689)
+cv.train <- sample(1:4918, 0.7*4918)
+tr.new.train <- tr.new[cv.train,]
+tr.new.test1 <- tr.new[-cv.train,]
+tr.new.test <- tr.new.test1[,-1]
+```
+
+```{r}
+# Final model, without predictors #6
+model <- randomForest(CASE_STATUS ~ ., data=tr.new[,-c(6)])
+```
+
+
+********************************************************************************
+__You Can ignore anything below this line__
+********************************************************************************
+
+```{r}
+# code for CV, without predictors #6
+model <- randomForest(CASE_STATUS ~ ., data=tr.new.train[,-c(6)], ntree = 800)
+
+model.logit = glm(CASE_STATUS~ p.time^6, data = tr.new.train, family = binomial)
+library(party)
+fit <- cforest(CASE_STATUS ~ ., data = tr.new.train, 
+                 controls=cforest_unbiased(ntree=500, mtry=5))
+
+```
+
+```{r}
+pred.res <- as.character(predict(model,tr.new.test))
+pred.res <- predict(fit, tr.new.test, OOB=T, type = "response")
+```
+
+```{r}
+table(as.character(tr.new.train$CASE_STATUS),pred.res)
+```
+
+```{r}
+accu.rate <- function(prediction){
+  return(sum(diag(table(as.character(tr.new.test1$CASE_STATUS),prediction)))/sum(table(as.character(tr.new.test1$CASE_STATUS),pred.res)))
+}
+```
+
+#################################################################################
+__CV of more than one models__
+#################################################################################
+
+```{r}
+compAccu <- c()
+accu.mat <- matrix(rep(0,3100),nrow = 100)
+for(k in 1:100){
+  comparison.model <- randomForest(CASE_STATUS ~ ., data=tr.new.train[,-c(6,29,30,31)])
+  compAccu[k] <- accu.rate(as.character(predict(comparison.model,tr.new.test)))
+  for(i in c(29:31)){
+    temp.model <- randomForest(CASE_STATUS ~ ., data=tr.new.train[,-c(i,6)])
+    accu.mat[k,i]<-accu.rate(as.character(predict(temp.model,tr.new.test)))
+  }
+  if(k %% 10 == 0)
+    print(k)
+}
+```
+
+```{r}
+mean(compAccu)
+apply(accu.mat,2,mean)
+# eliminate parameter #6
+which.max(apply(accu.mat[-c(51:100),],2,mean))
+```
+
+#################################################################################
+__CV of a single model__
+#################################################################################
+
+```{r}
+compAccu <- c()
+anoAccu<-c()
+for(k in 1:100){
+  cv.train <- sample(1:4918, 0.7*4918)
+  tr.new.train <- tr.new[cv.train,]
+  tr.new.test1 <- tr.new[-cv.train,]
+  tr.new.test <- tr.new.test1[,-1]
+  comparison.model <- randomForest(CASE_STATUS ~ ., data=tr.new.train[,-c(6)])
+  compAccu[k] <- accu.rate(as.character(predict(comparison.model,tr.new.test)))
+  ano.model <- randomForest(CASE_STATUS ~ ., data=tr.new.train[,-c(6)])
+  anoAccu[k] <- accu.rate(as.character(predict(ano.model,tr.new.test)))
+  if(k %% 10 == 0)
+    print(k)
+}
+```
+
+```{r}
+mean(compAccu)
+mean(anoAccu)
+```
+
+
+
+
+```{r}
+as.data.frame(table(tr.new$p.time[tr.new$CASE_STATUS == "CERTIFIED"]))
+
+ptime = as.data.frame(table(tr.new$p.time))
+ptime = cbind(ptime, as.data.frame(table(tr.new$p.time[tr.new$CASE_STATUS == "CERTIFIED"])))
+ptime  =ptime[,-3]
+ptime$rate = ptime[,3]/ptime[,2]
+ptime
+write.csv(ptime, "ptimeplot.csv")
+
+rate = as.data.frame(table(ptime$rate))
+rate
+write.csv(rate, "rate.csv")
+
+plot(ptime$Var1[ptime$rate==0])
+
+
+
+
+table(tr.new$p.time[tr.new$CASE_STATUS == "DENIED"])
+plot(tr.new$p.time[tr.new$CASE_STATUS == "DENIED"])
+#for those cases are denied, most of them 
+
+#tr.new$p.time = as.numeric(tr.new$p.time)
+#for those ptime less than 5 days, cetified rate is 0
+#for those ptime greater than 200, c rate is less than 30%
+#for those ptime greater than 5, less than 100, c rate ~82.5%
+#those in between is more than 80%
+#the average approval rate is 0.58
+
+table(tr.new$CASE_STATUS[tr.new$p.time < 5  ])  #0
+table(tr.new$CASE_STATUS[tr.new$p.time >= 5 & tr.new$p.time < 100 ]) #82.6
+table(tr.new$CASE_STATUS[tr.new$p.time >= 100 & tr.new$p.time < 200 ]) #43.1
+table(tr.new$CASE_STATUS[tr.new$p.time >= 200 & tr.new$p.time < 300 ])  #33.3
+table(tr.new$CASE_STATUS[tr.new$p.time >= 300 & tr.new$p.time < 400 ])  #36.13
+table(tr.new$CASE_STATUS[tr.new$p.time >= 400 ])  #14.3
+summary(tr.new$p.time)
+rate.2 = data.frame(time = c("< 5 days", "5 ~ 100 days","100 ~ 200 days","200 ~ 300 days","300 ~ 400 days", "> 400 days", "Average"), rate = c(0, 0.826, 0.431, 0.333, 0.361, 0.143, 0.58))
+write.csv(rate.2, "rate2.csv")
+```
+
+
+# 418 levels of days teh approval rate is 0
+
+
+
+
+
