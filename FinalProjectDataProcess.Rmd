@@ -1,0 +1,239 @@
+---
+title: "Final_Project_DataCleaning"
+author: "Citina Liang"
+date: "2018/7/27"
+output: html_document
+---
+
+```{r,message=FALSE}
+library(readr)
+h1b.test <- read_csv("TestH1BLast No Y values.csv")
+```
+
+```{r}
+h1b.test$PREVAILING_WAGE_year <- 1:2093
+for(i in 1:2093){
+  if(is.na(h1b.test$PW_UNIT_OF_PAY[i])){
+    h1b.test$PREVAILING_WAGE_year[i] <- NA
+  }
+  else if(h1b.test$PW_UNIT_OF_PAY[i] == "Bi-Weekly"){
+    h1b.test$PREVAILING_WAGE_year[i] <- h1b.test$PREVAILING_WAGE[i] * 52.14 / 2
+  }
+  else if(h1b.test$PW_UNIT_OF_PAY[i] == "Hour"){
+    h1b.test$PREVAILING_WAGE_year[i] <- h1b.test$PREVAILING_WAGE[i] * 52.14 * 8 * 5
+  }
+  else if(h1b.test$PW_UNIT_OF_PAY[i] == "Month"){
+    h1b.test$PREVAILING_WAGE_year[i] <- h1b.test$PREVAILING_WAGE[i] * 12
+  }
+  else if(h1b.test$PW_UNIT_OF_PAY[i] == "Week"){
+    h1b.test$PREVAILING_WAGE_year[i] <- h1b.test$PREVAILING_WAGE[i] * 52.14
+  }
+  else {
+    h1b.test$PREVAILING_WAGE_year[i] <- h1b.test$PREVAILING_WAGE[i]
+  }
+}
+```
+
+```{r}
+h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR <- 1:2093
+for(i in 1:2093){
+  if(is.na(h1b.test$WAGE_UNIT_OF_PAY[i])){
+    h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- NA
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Bi-Weekly"){
+    h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_FROM[i] * 52.14 / 2
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Hour"){
+    h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_FROM[i] * 52.14 * 8 * 5
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Month"){
+    h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_FROM[i] * 12
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Week"){
+    h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_FROM[i] * 52.14
+  }
+  else {
+    h1b.test$WAGE_RATE_OF_PAY_FROM_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_FROM[i]
+  }
+}
+```
+
+```{r}
+h1b.test$WAGE_RATE_OF_PAY_TO_YEAR <- 1:2093
+for(i in 1:2093){
+  if(is.na(h1b.test$WAGE_UNIT_OF_PAY[i])){
+    h1b.test$WAGE_RATE_OF_PAY_TO_YEAR[i] <- NA
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Bi-Weekly"){
+    h1b.test$WAGE_RATE_OF_PAY_TO_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_TO[i] * 52.14 / 2
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Hour"){
+    h1b.test$WAGE_RATE_OF_PAY_TO_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_TO[i] * 52.14 * 8 * 5
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Month"){
+    h1b.test$WAGE_RATE_OF_PAY_TO_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_TO[i] * 12
+  }
+  else if(h1b.test$WAGE_UNIT_OF_PAY[i] == "Week"){
+    h1b.test$WAGE_RATE_OF_PAY_TO_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_TO[i] * 52.14
+  }
+  else {
+    h1b.test$WAGE_RATE_OF_PAY_TO_YEAR[i] <- h1b.test$WAGE_RATE_OF_PAY_TO[i]
+  }
+}
+```
+
+```{r}
+h1b.test$pw_source_other<-ifelse(h1b.test$PW_SOURCE_OTHER=="OFLC ONLINE DATA CENTER","OFLC ONLINE DATA CENTER", "OTHER")
+for(i in 1:2093){
+  if(is.na(h1b.test$pw_source_other[i])){
+    h1b.test$pw_source_other[i]<-"N/A"
+  }
+}
+```
+
+
+```{r}
+h1b.test2 <- h1b.test[,c(
+                "VISA_CLASS",
+                "PREVAILING_WAGE_year",
+                "TOTAL_WORKERS",
+                "H1B_DEPENDENT",
+                "LABOR_CON_AGREE",
+                "NEW_EMPLOYMENT",
+                "CONTINUED_EMPLOYMENT",
+                "CHANGE_PREVIOUS_EMPLOYMENT",
+                "NEW_CONCURRENT_EMPLOYMENT",
+                "CHANGE_EMPLOYER",
+                "AMENDED_PETITION",
+                "FULL_TIME_POSITION",
+                "WAGE_RATE_OF_PAY_FROM_YEAR",
+                "pw_source_other",
+                "PW_SOURCE_YEAR",
+                "EMPLOYER_COUNTRY",
+                "EMPLOYER_PROVINCE",
+                "EMPLOYER_PHONE",
+                "AGENT_REPRESENTING_EMPLOYER",
+                "PW_WAGE_LEVEL",
+                "WILLFUL_VIOLATOR",
+                "ORIGINAL_CERT_DATE",
+                "PW_UNIT_OF_PAY",
+                "PW_SOURCE",
+                "SUPPORT_H1B")]
+```
+
+```{r}
+h1b.test$EMPLOYMENT_START_DATE <- as.Date(h1b.test$EMPLOYMENT_START_DATE, format = "%m/%d/%Y")
+h1b.test$EMPLOYMENT_END_DATE <- as.Date(h1b.test$EMPLOYMENT_END_DATE, format = "%m/%d/%Y")
+h1b.test$DECISION_DATE <- as.Date(h1b.test$DECISION_DATE, format = "%m/%d/%Y")
+h1b.test$CASE_SUBMITTED <- as.Date(h1b.test$CASE_SUBMITTED, format = "%m/%d/%Y")
+```
+
+```{r}
+h1b.test2$p.time <- h1b.test$DECISION_DATE-h1b.test$CASE_SUBMITTED
+h1b.test2$p.time <- as.numeric(h1b.test2$p.time)
+```
+
+```{r}
+h1b.test2$decision.day <- ifelse( weekdays(h1b.test$DECISION_DATE)=="Saturday"|
+weekdays(h1b.test$DECISION_DATE) == "Sunday", "Weekend", "Weekday")
+```
+
+```{r}
+for(i in 1:2093){
+  for(k in 1:27){
+    if(is.na(h1b.test2[i,k]))
+    {
+      if(k == 2 | k == 13){
+        h1b.test2[i,k] <- 0
+      }
+      else {
+        h1b.test2[i,k] <- "N/A"
+      }
+    }
+  }
+}
+```
+
+
+```{r}
+for(i in 1:2093){
+  if(h1b.test2$ORIGINAL_CERT_DATE[i] != "N/A"){
+    h1b.test2$ORIGINAL_CERT_DATE[i] <- "not N/A"
+  }
+}
+
+for(i in 1:2093){
+  if(h1b.test2$EMPLOYER_PROVINCE[i] != "N/A"){
+    h1b.test2$EMPLOYER_PROVINCE[i] <- "not N/A"
+  }
+}
+
+for(i in 1:2093){
+  if(h1b.test2$EMPLOYER_PHONE[i] != "N/A"){
+    h1b.test2$EMPLOYER_PHONE[i] <- "not N/A"
+  }
+}
+```
+
+```{r}
+h1b.test2$VISA_CLASS <- factor(h1b.test2$VISA_CLASS,
+                               levels = levels(tr.new.train$VISA_CLASS))
+
+h1b.test2$LABOR_CON_AGREE <- factor(h1b.test2$LABOR_CON_AGREE,
+                                    levels = levels(tr.new.train$LABOR_CON_AGREE))
+
+h1b.test2$FULL_TIME_POSITION <- factor(h1b.test2$FULL_TIME_POSITION,
+                                       levels = levels(tr.new.train$FULL_TIME_POSITION))
+
+h1b.test2$pw_source_other <- factor(h1b.test2$pw_source_other,
+                                    levels=levels(tr.new.train$pw_source_other))
+
+h1b.test2$PW_SOURCE_YEAR <- factor(h1b.test2$PW_SOURCE_YEAR,
+                                   levels = levels(tr.new.train$PW_SOURCE_YEAR))
+
+h1b.test2$EMPLOYER_COUNTRY <- factor(h1b.test2$EMPLOYER_COUNTRY,
+                                     levels = levels(tr.new.train$EMPLOYER_COUNTRY))
+
+h1b.test2$EMPLOYER_PROVINCE <- factor(h1b.test2$EMPLOYER_PROVINCE,
+                                      levels=levels(tr.new.train$EMPLOYER_PROVINCE))
+
+h1b.test2$EMPLOYER_PHONE <- factor(h1b.test2$EMPLOYER_PHONE,levels = levels(tr.new.train$EMPLOYER_PHONE))
+
+h1b.test2$AGENT_REPRESENTING_EMPLOYER <- factor(h1b.test2$AGENT_REPRESENTING_EMPLOYER,levels = levels(tr.new.train$AGENT_REPRESENTING_EMPLOYER))
+
+h1b.test2$PW_WAGE_LEVEL <- factor(h1b.test2$PW_WAGE_LEVEL,levels = levels(tr.new.train$PW_WAGE_LEVEL))
+
+h1b.test2$WILLFUL_VIOLATOR <- factor(h1b.test2$WILLFUL_VIOLATOR,levels = levels(tr.new.train$WILLFUL_VIOLATOR))
+
+h1b.test2$ORIGINAL_CERT_DATE <- factor(h1b.test2$ORIGINAL_CERT_DATE,
+        levels=levels(tr.new.train$ORIGINAL_CERT_DATE))
+
+h1b.test2$PW_UNIT_OF_PAY <- factor(h1b.test2$PW_UNIT_OF_PAY,
+                                   levels=levels(tr.new.train$PW_UNIT_OF_PAY))
+
+h1b.test2$PW_SOURCE <- factor(h1b.test2$PW_SOURCE,
+                              levels=levels(tr.new.train$PW_SOURCE))
+
+h1b.test2$SUPPORT_H1B <- factor(h1b.test2$SUPPORT_H1B,
+                                levels=levels(tr.new.train$SUPPORT_H1B))
+
+h1b.test2$decision.day <- factor(h1b.test2$decision.day,
+                                 levels= levels(tr.new.train$decision.day))
+
+h1b.test2$H1B_DEPENDENT <- factor(h1b.test2$H1B_DEPENDENT,
+                                  levels = levels(tr.new.train$H1B_DEPENDENT))
+```
+
+```{r}
+test.result <- as.character(predict(model,h1b.test2))
+```
+
+```{r}
+prediction.made <- data.frame(ob = 1:2093, x=test.result)
+names(prediction.made) <- c("ob","CASE_STATUS")
+```
+
+```{r}
+write.csv(prediction.made,"Subm.csv",row.names = FALSE)
+```
+
